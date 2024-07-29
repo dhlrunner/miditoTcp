@@ -17,7 +17,7 @@ namespace miditoTcp
         //static InputDevice inputDeviceA = null;
         //static InputDevice inputDeviceB = null;
 
-        static string ipAddr = "172.27.11.136";
+        static string ipAddr = "10.10.4.23";
         static int port = 12345;
 
         static TcpClient tcpClient = null;
@@ -41,18 +41,20 @@ namespace miditoTcp
             //byte[] midiDataBuffer = new byte[128];
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
             InputDevices = new InputDevice[inputDev.Length];
-            MidiEventToBytesConverter x = new MidiEventToBytesConverter();
+            
             for (int i = 0; i < inputDev.Length; i++)
             {
                 int portIndex = i;
                 InputDevices[i] = InputDevice.GetByName(inputDev[i].devName);
                 InputDevices[i].EventReceived += (sender, e) => {
                     var midiDevice = (MidiDevice)sender;
-
+                    //미디 데이터 수신할때마다 new 해주지 않으면 데이터가 이상하게 변환됨
+                    MidiEventToBytesConverter x = new MidiEventToBytesConverter();
                     //byte[] data = x.Convert(e.Event);
                     List<byte> data = x.Convert(e.Event).ToList();
                     if(data.Count > 0)
                     {
+
                         if (data[0] == 0xf0)
                         {
                             //byte[] newdata = new byte[(data.Count - 1) + 3];
